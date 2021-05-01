@@ -11,6 +11,11 @@ def index():
     Usage: GET /{hour}/{minute}
     '''
 
+@app.route('/health')
+def healthcheck():
+    """Returns something if the application is running."""
+    return 'OK'
+
 @app.route('/<int:hour_in_mirror>/<int:minute_in_mirror>')
 def get_real_time(hour_in_mirror, minute_in_mirror):
     """
