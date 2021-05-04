@@ -118,3 +118,12 @@ resource "aws_lb_listener" "clock" {
     target_group_arn = aws_lb_target_group.clock.arn
   }
 }
+
+# register some user-friendly DNS
+resource "namecheap_record" "clock" {
+  type = "CNAME"
+  name = "clock"
+  domain = "mbraptor.tech"
+  address = aws_alb.clock.dns_name
+  ttl = 3600
+}

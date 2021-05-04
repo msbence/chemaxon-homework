@@ -1,5 +1,5 @@
 resource "aws_alb" "clock" {
-  name               = "default-alb"
+  name               = "clock"
   load_balancer_type = "application"
   subnets = [
     aws_default_subnet.default_subnet_a.id,
