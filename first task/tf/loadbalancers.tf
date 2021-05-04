@@ -1,4 +1,4 @@
-resource "aws_alb" "default_alb" {
+resource "aws_alb" "clock" {
   name               = "default-alb"
   load_balancer_type = "application"
   subnets = [
@@ -7,11 +7,11 @@ resource "aws_alb" "default_alb" {
     aws_default_subnet.default_subnet_c.id,
   ]
 
-  security_groups = [aws_security_group.default_alb_security_group.id]
+  security_groups = [aws_security_group.clock_alb.id]
 }
 
 
-resource "aws_security_group" "default_alb_security_group" {
+resource "aws_security_group" "clock_alb" {
   ingress {
     from_port   = 80
     to_port     = 80

@@ -4,12 +4,12 @@ data "aws_ecr_repository" "clock_mirror2real" {
 }
 
 # ECS cluster where the service runs
-resource "aws_ecs_cluster" "clock_cluster" {
+resource "aws_ecs_cluster" "clock" {
   name = "clock-cluster"
 }
 
 # The definition of the task which will be run on ECS
-resource "aws_ecs_task_definition" "clock_task" {
+resource "aws_ecs_task_definition" "clock" {
   family                   = "clock-task"
   container_definitions    = <<EOF
   [
@@ -61,33 +61,33 @@ resource "aws_iam_role_policy_attachment" "ecs_policy_attachment" {
 }
 
 # Create the service itself
-resource "aws_ecs_service" "clock_service" {
+resource "aws_ecs_service" "clock" {
   name            = "clock-mirror2real"
-  cluster         = aws_ecs_cluster.clock_cluster.id
-  task_definition = aws_ecs_task_definition.clock_task.arn
+  cluster         = aws_ecs_cluster.clock.id
+  task_definition = aws_ecs_task_definition.clock.arn
   launch_type     = "FARGATE"
   desired_count   = 1
 
   network_configuration {
     subnets          = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
     assign_public_ip = true
-    security_groups  = [aws_security_group.clock_security_group.id]
+    security_groups  = [aws_security_group.clock.id]
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.clock_target_group.arn
-    container_name   = aws_ecs_task_definition.clock_task.family
+    target_group_arn = aws_lb_target_group.clock.arn
+    container_name   = aws_ecs_task_definition.clock.family
     container_port   = 80
   }
 }
 
 # define who can communicate with the clock service
-resource "aws_security_group" "clock_security_group" {
+resource "aws_security_group" "clock" {
   ingress {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
-    security_groups = [aws_security_group.default_alb_security_group.id]
+    security_groups = [aws_security_group.clock_alb.id]
   }
 
   egress {
@@ -99,7 +99,7 @@ resource "aws_security_group" "clock_security_group" {
 }
 
 # define where is the service listening
-resource "aws_lb_target_group" "clock_target_group" {
+resource "aws_lb_target_group" "clock" {
   name        = "clock-target-group"
   port        = 80
   protocol    = "HTTP"
@@ -108,13 +108,13 @@ resource "aws_lb_target_group" "clock_target_group" {
 }
 
 # listen to the service
-resource "aws_lb_listener" "clock_listener" {
-  load_balancer_arn = aws_alb.default_alb.arn
+resource "aws_lb_listener" "clock" {
+  load_balancer_arn = aws_alb.clock.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.clock_target_group.arn
+    target_group_arn = aws_lb_target_group.clock.arn
   }
 }
